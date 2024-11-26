@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TextField, Grid, Card, CardMedia, CardContent, Typography } from '@mui/material';
+import { TextField, Grid, Card, CardMedia, CardContent, Typography, CircularProgress, Box } from '@mui/material';
 
 interface Product {
   id: number;
@@ -13,6 +13,7 @@ interface Product {
 const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -21,6 +22,8 @@ const ProductList: React.FC = () => {
         setProducts(response.data.products);
       } catch (error) {
         console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -41,31 +44,37 @@ const ProductList: React.FC = () => {
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
       />
-      <Grid container spacing={2}>
-        {filteredProducts.map(product => (
-          <Grid item xs={12} sm={6} md={4} key={product.id}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="140"
-                image={product.thumbnail}
-                alt={product.title}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {product.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {product.description}
-                </Typography>
-                <Typography variant="h6" color="text.primary">
-                  ${product.price}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={2}>
+          {filteredProducts.map(product => (
+            <Grid item xs={12} sm={6} md={4} key={product.id}>
+              <Card>
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={product.thumbnail}
+                  alt={product.title}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {product.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {product.description}
+                  </Typography>
+                  <Typography variant="h6" color="text.primary">
+                    ${product.price}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </div>
   );
 };
